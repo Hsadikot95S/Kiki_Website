@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiki the Translator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">Kiki the Translator</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="pricing.html">Pricing</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero chatbot-theme">
+            <h1>Unlock the Power of Translation</h1>
+            <p>Seamlessly communicate across languages with Kiki, your personal Discord translation bot.</p>
+            <div class="chatbot-animation">
+                <div class="chatbot-icon"></div>
+            </div>
+        </section>
+
+        <section class="details">
+            <h2>About Kiki</h2>
+            <p>Details about Kiki...</p>
+            <p>Welcome to our cutting-edge platform where language barriers are a thing of the past. Choose your preferred languages for seamless translations, whether it's one, two, three, or four languages for fluid communication. Enjoy lively banter with Kiki through dad jokes and puns, and elevate your messages using country flag emojis for translations. Let Kiki voice messages in your selected channel through text-to-speech, create engaging auto-translated polls, and pick from different themes for translation preferences. Experience effortless single-language inter-channel translations and set up simple single-language inter-server translations with ease. Stay informed with one-time or recurring translated announcements, engage in private AI chat, and utilize vision capabilities for flawless translations while unlocking exclusive image generation add-ons to enhance your messaging further.</p>
+        </section>
+
+        <section class="commands">
+            <h2>Commands Documentation</h2>
+            <div class="command-list">
+                <table id="commands-table">
+                    <!-- Commands from commands_db.xlsx will be inserted here -->
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <button onclick="window.location.href='mailto:arglobaltraslator@gmail.com'">Contact Us</button>
+            <button onclick="window.location.href='https://discord.com'">Community Server</button>
+            <button onclick="window.location.href='terms_of_service.html'">Terms of Service</button>
+            <button onclick="window.location.href='privacy_policy.html'">Privacy Policy</button>
+        </div>
+        <p class="copyright-text">&copy; 2024 Kiki the Translator. All rights reserved.</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>

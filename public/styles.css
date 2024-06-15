@@ -1,0 +1,470 @@
+/* Base Styles */
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: justify;
+}
+
+.header, .footer-content {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1em 0;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    background-color: #333;
+    color: white;
+}
+
+.navbar .logo {
+    font-size: 1.5em;
+}
+
+.navbar nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.navbar nav ul li {
+    margin-left: 20px;
+}
+
+.navbar nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-size: 1em;
+}
+
+.navbar nav ul li a:hover {
+    color: #4CAF50;
+}
+
+.hero {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #f4f4f4;
+}
+
+.hero.chatbot-theme {
+    background-image: url('banner.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    color: white;
+}
+
+.hero h1, .hero p {
+    color: white;
+    text-align: center;
+}
+
+.chatbot-animation {
+    width: 100px;
+    margin: 0 auto;
+    animation: float 3s infinite;
+}
+
+.chatbot-icon {
+    width: 100px;
+    height: 100px;
+    background-color: #00bcd4;
+    border-radius: 50%;
+    position: relative;
+}
+
+.chatbot-icon::before,
+.chatbot-icon::after {
+    content: '';
+    position: absolute;
+    top: 30%;
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+.chatbot-icon::before {
+    left: 20%;
+}
+
+.chatbot-icon::after {
+    right: 20%;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.details, .commands {
+    padding: 20px;
+}
+
+.commands h2 {
+    margin-bottom: 20px;
+}
+
+.command-list {
+    overflow-x: auto;
+}
+
+#commands-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#commands-table th, #commands-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+#commands-table th {
+    background-color: #f9f9f9;
+}
+
+.pricing {
+    text-align: center;
+    padding: 20px;
+}
+
+.pricing h1 {
+    margin-bottom: 20px;
+}
+
+/* Container for the rows to control spacing */
+.pricing-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px; /* Ensure uniform gap between rows */
+}
+
+/* Ensure consistent spacing between all cards in both rows */
+.pricing-cards-row, .pricing-cards-center {
+    display: grid;
+    grid-gap: 20px; /* Consistent gap between cards */
+    justify-items: center;
+    width: 100%; /* Ensure full width for proper alignment */
+}
+
+/* Top row specific settings */
+.pricing-cards-row {
+    grid-template-columns: repeat(4, 1fr); /* 4 cards per row */
+}
+
+/* Bottom row specific settings */
+.pricing-cards-center {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Ensure the number of columns matches the number above to align them properly */
+    justify-content: center; /* This centers the cards within the container */
+    gap: 20px; /* Consistent spacing between cards */
+    width: 100%; /* Full width to align with the cards above */
+    margin: 0 auto; /* Center the grid container */
+}
+
+/* Ensure consistent margins and width for all cards */
+.card {
+    background-color: #fff;
+    border: 2px solid black; /* Black border */
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 20px;
+    width: 250px;
+    margin: 0; /* Reset margin to ensure grid-gap takes effect */
+    text-align: center; /* Center-align text */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%; /* Ensure all cards have the same height */
+    max-height: 600px; /* Set maximum height for the cards */
+    overflow: hidden; /* Hide overflow content */
+}
+
+.card-content {
+    flex: 1; /* Allow content to grow and fill available space */
+    overflow-y: auto; /* Enable vertical scrolling for overflow content */
+    margin-bottom: 1em; /* Space between the content and the subscription controls */
+}
+
+/* Ensure consistent spacing between image and title */
+.card img {
+    width: 100%;
+    border: 2px solid black; /* Black border for images */
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 1em; /* Consistent spacing */
+}
+
+/* Ensure consistent spacing between title and pricing */
+.card h2 {
+    margin: 0;
+    font-size: 1.2em;
+    margin-bottom: 1em; /* Consistent spacing */
+}
+
+/* Ensure consistent spacing between pricing and subscription information */
+.card p {
+    font-size: 1em;
+    color: #333;
+    margin: 0 0 1em 0; /* Consistent spacing */
+}
+
+/* Ensure consistent spacing for list items */
+.card ul {
+    padding-left: 20px; /* Add padding for bullet points */
+    list-style-type: disc; /* Add bullet points */
+    text-align: left; /* Align text to the left */
+    margin: 0 0 1em 0; /* Consistent spacing */
+}
+
+.card ul li {
+    text-align: justify;
+    margin-bottom: 10px; /* Consistent spacing between list items */
+}
+
+/* Ensure consistent spacing for subscription control */
+.card .subscription-control-inline, .card .subscription-control {
+    margin-top: 1em; /* Consistent spacing */
+    margin-bottom: 1em; /* Space between the subscription controls and the bottom of the card */
+}
+
+.subscription-control-inline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.subscription-control-inline button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin: 0 5px;
+    cursor: pointer;
+    font-size: 1em;
+    border-radius: 5px;
+}
+
+.subscription-control-inline span {
+    font-size: 1.2em;
+    margin: 0 10px;
+}
+
+.subscription-control-inline button:hover {
+    background-color: #c9302c;
+}
+
+.card button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.card button:hover {
+    background-color: #c9302c;
+}
+
+.checkout-container {
+    margin-top: 80px; /* Further increase space above the checkout button */
+    text-align: center;
+}
+
+.checkout-button {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.checkout-button:hover {
+    background-color: #4cae4c;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: center; /* Centers content horizontally in the flex container */
+    align-items: center; /* Centers content vertically in the flex container */
+    text-align: center; /* Ensures text within the container is centered */
+    width: 100%; /* Full width to cover the area */
+    padding: 10px 0; /* Adequate padding for visual appeal */
+    background-color: #333; /* Maintains the background color */
+    color: white; /* Ensures text color is white */
+}
+
+.footer-content p {
+    flex: 0 1 100%; /* Ensures the paragraph takes the full width of its container */
+    text-align: center;
+    margin: 0; /* Removes any default margin */
+    width:100%;
+}
+
+.footer-content button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+}
+
+.footer-content button:hover {
+    background-color: #555;
+}
+
+.checkout {
+    padding: 20px;
+    text-align: center;
+}
+
+.checkout h1 {
+    margin-bottom: 20px;
+}
+
+.checkout table {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border-collapse: separate;
+    border-spacing: 10px 15px;
+}
+
+.checkout table, .checkout th, .checkout td {
+    border: 1px solid #ccc;
+}
+
+.checkout th, .checkout td {
+    padding: 10px;
+    text-align: left;
+}
+
+.checkout th {
+    background-color: #f9f9f9;
+}
+
+.checkout tfoot td {
+    font-weight: bold;
+}
+
+/* Small screens (mobile) */
+@media (max-width: 600px) {
+    .navbar ul {
+        flex-direction: column;
+    }
+
+    .navbar li {
+        margin: 0.5em 0;
+    }
+
+    .pricing-cards-row {
+        grid-template-columns: 1fr;
+    }
+
+    .pricing-cards-center {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        width: 90%;
+    }
+
+    .checkout-button {
+        width: 90%;
+        margin: 1em auto;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .footer-content button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+/* Medium screens (tablets and iPads) */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .pricing-cards-row,
+    .pricing-cards-center {
+        grid-template-columns: repeat(2, 1fr); /* Two columns for better layout */
+    }
+
+    .card {
+        margin: 10px; /* Sufficient space around each card */
+        width: calc(50% - 20px); /* Adjust width accounting for margins */
+    }
+}
+
+/* Large screens (laptops and computers) */
+@media (min-width: 1025px) {
+    .pricing-cards-row {
+        grid-template-columns: repeat(4, 1fr); /* 4 cards per row */
+        grid-auto-rows: auto;
+    }
+
+    .pricing-cards-center {
+        grid-template-columns: repeat(2, 1fr); /* Ensure 2 cards per row */
+        grid-gap: 20px; /* Ensure same gap as top row */
+        justify-content: space-between; /* Ensure spacing between cards is consistent */
+        width: 620px; /* Ensure proper width to align with top row */
+    }
+
+    .card {
+        width: 250px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .pricing-cards-center {
+        grid-template-columns: repeat(2, 1fr); /* Two cards per row for tablets */
+    }
+}
+
+@media (max-width: 600px) {
+    .pricing-cards-center {
+        grid-template-columns: 1fr; /* Single column layout for mobile */
+    }
+}
+/* Hover effects */
+button:hover, .checkout-button:hover, .footer-content button:hover {
+    background-color: #555;
+    color: #fff;
+}
+
+a:hover {
+    color: #4CAF50;
+}
+
+/* Tick and green mark for purchase complete */
+.purchased::before {
+    content: '✔ ';
+    color: green;
+}

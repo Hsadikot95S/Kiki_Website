@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiki the Translator - Checkout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="login.js"></script>
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">Kiki the Translator</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="pricing.html">Pricing</a></li>
+                    <li><a href="checkout.html" id="cart-icon">Cart (0)</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="checkout">
+            <h1>Checkout</h1>
+            <table id="checkout-table">
+                <thead>
+                    <tr>
+                        <th>Name Of Subscription</th>
+                        <th>Cost for each</th>
+                        <th>No of Subscriptions</th>
+                        <th>Total cost</th>
+                    </tr>
+                </thead>
+                <tbody id="checkout-table-body">
+                    <!-- Subscription items will be inserted here by JavaScript -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">Subtotal</td>
+                        <td id="total-price">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+            <button class="checkout-button" onclick="completeCheckout()">Complete Purchase</button>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <button onclick="window.location.href='mailto:arglobaltraslator@gmail.com'">Contact Us</button>
+            <button onclick="window.location.href='https://discord.com'">Community Server</button>
+            <button onclick="window.location.href='terms_of_service.html'">Terms of Service</button>
+            <button onclick="window.location.href='privacy_policy.html'">Privacy Policy</button>
+        </div>
+        <p class="copyright-text">&copy; 2024 Kiki the Translator. All rights reserved.</p>
+    </footer>
+
+    <script src="checkout.js"></script>
+</body>
+</html>
