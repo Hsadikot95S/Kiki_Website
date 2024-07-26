@@ -6,6 +6,7 @@
     <title>Kiki the Translator - Pricing</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
 </head>
 <body>
     <header>
@@ -25,6 +26,8 @@
     <main>
         <section class="pricing">
             <h1>Choose your membership</h1>
+            <div id="excel-table-container"></div>
+            <div class="spacing"></div>
             <div class="pricing-container">
                 <div class="pricing-cards-row">
                     <div class="card">
@@ -103,6 +106,7 @@
                         </div>
                     </div>
                 </div>
+                <div class="spacer"></div> <!-- Add spacer here for spacing between rows -->
                 <div class="pricing-cards-center">
                     <div class="card">
                         <img src="addon_1.png" alt="Add On 1">

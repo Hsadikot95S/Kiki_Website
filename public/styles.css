@@ -172,7 +172,7 @@ body {
 /* Bottom row specific settings */
 .pricing-cards-center {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Ensure the number of columns matches the number above to align them properly */
+    grid-template-columns: repeat(2, 1fr); /* Ensure the number of columns matches the number above to align them properly */
     justify-content: center; /* This centers the cards within the container */
     gap: 20px; /* Consistent spacing between cards */
     width: 100%; /* Full width to align with the cards above */
@@ -318,7 +318,7 @@ body {
     flex: 0 1 100%; /* Ensures the paragraph takes the full width of its container */
     text-align: center;
     margin: 0; /* Removes any default margin */
-    width:100%;
+    width: 100%;
 }
 
 .footer-content button {
@@ -341,7 +341,6 @@ body {
     padding: 20px;
     text-align: center;
 }
-
 .checkout h1 {
     margin-bottom: 20px;
 }
@@ -453,6 +452,7 @@ body {
         grid-template-columns: 1fr; /* Single column layout for mobile */
     }
 }
+
 /* Hover effects */
 button:hover, .checkout-button:hover, .footer-content button:hover {
     background-color: #555;
@@ -463,8 +463,166 @@ a:hover {
     color: #4CAF50;
 }
 
-/* Tick and green mark for purchase complete */
+//* Tick and green mark for purchase complete */
 .purchased::before {
     content: '✔ ';
     color: green;
+}
+
+/* Table styles */
+.pricing-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.pricing-table th, .pricing-table td {
+    border: 1px solid #ddd; /* Grid lines */
+    padding: 8px;
+    text-align: left; /* Default alignment */
+}
+
+.pricing-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.pricing-table td {
+    text-align: justify; /* Justify text */
+}
+
+.pricing-table .tick {
+    color: green; /* Green color for ticks */
+    font-weight: bold; /* Make the ticks bold */
+    font-size: 1.2em; /* Increase the size of the ticks */
+}
+
+/* FAQ Section Styles */
+.faq {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+.faq h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #333;
+    text-align: center;
+}
+
+.faq-slider {
+    max-height: 400px;
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.faq-item {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.faq-item h3 {
+    font-size: 18px;
+    margin: 0;
+    cursor: pointer;
+    color: #007BFF;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.faq-item p {
+    font-size: 16px;
+    margin: 0;
+    display: none; /* Initially hide the answer */
+    color: #555;
+    padding: 10px 0;
+}
+
+.faq-item h3.active + p {
+    display: block; /* Show the answer when the question is clicked */
+}
+
+.faq-item h3::after {
+    content: '\002B'; /* Plus sign */
+    font-size: 18px;
+}
+
+.faq-item h3.active::after {
+    content: '\2212'; /* Minus sign */
+}
+
+/* Reviews Section Styles */
+.reviews {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+.reviews h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #333;
+    text-align: center;
+}
+
+.reviews-container {
+    display: flex;
+    flex-direction: row; /* Ensures horizontal layout */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    overflow-y: hidden; /* Disable vertical scrolling */
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.review-card {
+    flex: 0 0 auto; /* Prevent shrinking and ensure cards don't grow */
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    width: 300px; /* Set a fixed width for each review card */
+    box-sizing: border-box;
+    white-space: normal; /* Ensure content wraps within each card */
+}
+
+.review-card h3 {
+    font-size: 18px;
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.review-card p {
+    font-size: 16px;
+    margin: 5px 0;
+    color: #555;
+}
+
+.review-card .rating {
+    font-size: 20px;
+    color: #FFD700; /* Gold color for stars */
+    margin-bottom: 10px;
+}
+
+.review-card .customer {
+    font-size: 16px;
+    color: #777;
+    margin-top: 10px;
+    font-style: italic;
+}
+
+/* Additional spacer style */
+.spacer {
+    height: 20px;
 }

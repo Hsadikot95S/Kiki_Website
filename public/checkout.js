@@ -81,10 +81,10 @@ function saveCart() {
 }
 
 function completeCheckout() {
-    alert('Purchase complete!');
-    // Reset cart and redirect or close the modal
+    alert('We are currently in the process of making a payment gateway for our subscribers. Inconvenience is regretted.');
+    // Optionally reset cart and redirect or close the modal
     cartItems = {};
     totalPrice = 0;
     saveCart();
-    window.location.href = 'index.html'; // Redirect to a confirmation page or back to store
+    // window.location.href = 'index.html'; // Redirect to a confirmation page or back to store
 }
