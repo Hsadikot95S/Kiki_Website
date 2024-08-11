@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiki the Translator - Manage Subscription</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/styles.css">
+    <script src="static/login.js"></script>
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">Kiki the Translator</div>
+            <nav>
+                <ul>
+                    <li><a href="templates/index.html">Home</a></li>
+                    <li><a href="templates/pricing.html">Pricing</a></li>
+                    <li><a href="templates/checkout.html" id="cart-icon">Cart (0)</a></li>
+                    <li><a href="templates/subscription.html">Manage Subscription</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="manage-subscription">
+            <h1>Manage Your Subscriptions</h1>
+            <table id="subscription-table">
+                <thead>
+                    <tr>
+                        <th>Name Of Subscription</th>
+                        <th>No of Subscriptions</th>
+                    </tr>
+                </thead>
+                <tbody id="subscription-table-body">
+                    <!-- Subscription items will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <button onclick="window.location.href='mailto:arglobaltraslator@gmail.com'">Contact Us</button>
+            <button onclick="window.location.href='https://discord.com'">Community Server</button>
+            <button onclick="window.location.href='terms_of_service.html'">Terms of Service</button>
+            <button onclick="window.location.href='privacy_policy.html'">Privacy Policy</button>
+        </div>
+        <p class="copyright-text">&copy; 2024 Kiki the Translator. All rights reserved.</p>
+    </footer>
+
+    <script src="static/subscription.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiki the Translator - Pricing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Correctly reference the CSS file using url_for -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">Kiki the Translator</div>
+            <nav>
+                <ul>
+                    <!-- Use Flask routes to link to other pages -->
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('pricing') }}">Pricing</a></li>
+                    <li><a href="#" id="cart-icon">Cart (0)</a></li>
+                    <li><a href="{{ url_for('subscribe') }}">Manage Subscription</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="pricing">
+            <h1>Choose your membership</h1>
+            <div id="excel-table-container"></div>
+            <div class="spacing"></div>
+            <div class="pricing-container">
+                <div class="pricing-cards-row">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='images/purrfect_pals.png') }}" alt="Purrfect Pals">
+                        <div class="card-content">
+                            <h2>Purrfect Pals</h2>
+                            <p>Free Tier</p>
+                            <ul>
+                                <li>Set 1 language for translations on the server. All the other languages will be translated to this language.</li>
+                                <li>Set 2 languages for back and forth translations on the channel/server.</li>
+                                <li>Flag Translations - You can use country flag emojis to translate messages.</li>
+                                <li>Hilarious dad-jokes and puns.</li>
+                                <li>Enable/Disable dynamic backup of all the language settings on your server.</li>
+                            </ul>
+                        </div>
+                        <div class="subscription-control-inline">
+                            <button onclick="decreaseCount('Purrfect Pals', 0)">-</button>
+                            <span id="purrfect-pals-count">0</span>
+                            <button onclick="increaseCount('Purrfect Pals', 0)">+</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='images/whisker_whispers.png') }}" alt="Whisker Whispers">
+                        <div class="card-content">
+                            <h2>Whisker Whispers</h2>
+                            <p>$2/month</p>
+                            <ul>
+                                <p>Everything in the Purrfect Pals plus:</p>
+                                <li>Set 1 language for translations on channels/server.</li>
+                                <li>Set 3 languages for back and forth translations on the channel/server.</li>
+                                <li>Set 4 languages for back and forth translations on the channel/server.</li>
+                                <li>Setup single language inter-channel translations. Create custom groups using channel_group parameter.</li>
+                                <li>Connect to a voice channel and react to non-Kiki messages with loudspeaker emoji 📢 for Kiki to read the message out loud in native accent.</li>
+                                <li>Create smart auto-translated polls with timer.</li>
+                                <li>Select from Simple or Advanced translation themes.</li>
+                            </ul>
+                        </div>
+                        <div class="subscription-control-inline">
+                            <button onclick="decreaseCount('Whisker Whispers', 2)">-</button>
+                            <span id="whisker-whispers-count">0</span>
+                            <button onclick="increaseCount('Whisker Whispers', 2)">+</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='images/meow_majestic.png') }}" alt="Meow Majesty">
+                        <div class="card-content">
+                            <h2>Meow Majesty</h2>
+                            <p>$5/month</p>
+                            <ul>
+                                <p>Everything in the Purrfect Pals and Whisker Whispers plus:</p>
+                                <li>Setup single language inter-server translations.</li>
+                                <li>Create one-time/recurring announcements on channels. Mapped channels get translated announcements.</li>
+                                <li>Chat with Kiki (AI + Image analysis) - Register your server for AI-Chat.</li>
+                            </ul>
+                        </div>
+                        <div class="subscription-control-inline">
+                            <button onclick="decreaseCount('Meow Majesty', 5)">-</button>
+                            <span id="meow-majesty-count">0</span>
+                            <button onclick="increaseCount('Meow Majesty', 5)">+</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='images/feline_finest.png') }}" alt="Feline Finest">
+                        <div class="card-content">
+                            <h2>Feline Finest</h2>
+                            <p>$10/month</p>
+                            <ul>
+                                <p>Everything in the Purrfect Pals, Meow Majesty, and Whisker Whispers plus:</p>
+                                <li>Unlimited Private AI chat and Vision capabilities with Kiki and super accurate translations.</li>
+                            </ul>
+                        </div>
+                        <div class="subscription-control-inline">
+                            <button onclick="decreaseCount('Feline Finest', 10)">-</button>
+                            <span id="feline-finest-count">0</span>
+                            <button onclick="increaseCount('Feline Finest', 10)">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="spacer"></div> <!-- Add spacer here for spacing between rows -->
+                <div class="pricing-cards-center">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='images/addon_1.png') }}" alt="Add On 1">
+                        <div class="card-content">
+                            <h2>Add On 1</h2>
+                            <p>$5/month</p>
+                            <ul>
+                                <li>Image generation: 100 tokens</li>
+                            </ul>
+                        </div>
+                        <div class="subscription-control-inline">
+                            <button onclick="decreaseCount('Add On 1', 5)">-</button>
+                            <span id="add-on-1-count">0</span>
+                            <button onclick="increaseCount('Add On 1', 5)">+</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='images/addon_2.png') }}" alt="Add On 2">
+                        <div class="card-content">
+                            <h2>Add On 2</h2>
+                            <p>$10/month</p>
+                            <ul>
+                                <li>Image generation: 200 tokens</li>
+                            </ul>
+                        </div>
+                        <div class="subscription-control-inline">
+                            <button onclick="decreaseCount('Add On 2', 10)">-</button>
+                            <span id="add-on-2-count">0</span>
+                            <button onclick="increaseCount('Add On 2', 10)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="checkout-container">
+                <button class="checkout-button" onclick="checkout()">Checkout</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <button onclick="window.location.href='mailto:arglobaltraslator@gmail.com'">Contact Us</button>
+            <button onclick="window.location.href='https://discord.com'">Community Server</button>
+            <button onclick="window.location.href='{{ url_for('terms') }}'">Terms of Service</button>
+            <button onclick="window.location.href='{{ url_for('privacy') }}'">Privacy Policy</button>
+        </div>
+        <p class="copyright-text">&copy; 2024 Kiki the Translator. All rights reserved.</p>
+    </footer>
+
+    <!-- Correctly reference the JavaScript files using url_for -->
+    <script src="{{ url_for('static', filename='pricing.js') }}"></script>
+    <script src="{{ url_for('static', filename='login.js') }}"></script>
+</body>
+</html>
