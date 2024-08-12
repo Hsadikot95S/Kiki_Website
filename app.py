@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify, render_template, abort, send_from_directory
 import stripe
 import os
-from datetime import datetime
+from datetime import datetime,timedelta
+import uuid
 import mysql.connector
 from flask_cors import CORS
 
@@ -12,6 +13,7 @@ CORS(app)
 
 # Replace with your actual Stripe secret key
 stripe.api_key = "sk_test_51PPwVlImrBfC2UDpbYrHTmkp78IowquSToV0gYm05PN0kyUUKK0sDrUu9xE9vEDOpJtlcO17wbOAmZdbBAXauOso00Jja5wR64"
+webhook_secret = 'whsec_46104ba9458f37347d42e915d447ba2e3f0ddadd980dd91b98b78537801d10af'
 
 # Connect to the MySQL database
 db_config = {
@@ -96,29 +98,95 @@ def store_subscriber():
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     data = request.get_json()
+    cart_items = data.get('cartItems', [])
+    metadata = data.get('metadata', {})
 
-    # Create the Stripe Checkout session
-    session = stripe.checkout.Session.create(
-        payment_method_types=['card'],
-        line_items=[
-            {
-                'price_data': {
-                    'currency': 'usd',
-                    'product_data': {
-                        'name': item['name'],
+    # Store metadata in a variable
+    try:
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        # Extract the tier names from metadata
+        tiers = metadata.get('tier_names', '')
+
+        # Assuming discord_id is already stored or retrieved separately
+        cursor.execute("SELECT discordId FROM subscriber ORDER BY joinDate DESC LIMIT 1")
+        discord_id_row = cursor.fetchone()
+        if not discord_id_row:
+            raise ValueError("No discordId found in the database.")
+        discord_id = discord_id_row[0]
+
+        print("Metadata stored in variable 'tiers':", tiers)
+
+        # Generate the current timestamp for joinDate and calculate expiryDate
+        join_date = datetime.now()
+        expiry_date = join_date + timedelta(days=30)
+
+        # Check if there's already a subscription for this discordId
+        cursor.execute("SELECT * FROM subscriptions WHERE discordId = %s", (discord_id,))
+        existing_record = cursor.fetchone()
+
+        if existing_record:
+            # If a subscription exists, update the tier column
+            existing_tiers = existing_record[2]  # Assuming the third column is 'tier'
+            updated_tiers = existing_tiers + ',' + tiers
+            update_query = """
+            UPDATE subscriptions
+            SET tier = %s, joinDate = %s, expiryDate = %s
+            WHERE discordId = %s
+            """
+            cursor.execute(update_query, (updated_tiers, join_date, expiry_date, discord_id))
+        else:
+            # Insert a new record if no subscription exists
+            insert_query = """
+            INSERT INTO subscriptions (uuid, discordId, tier, joinDate, expiryDate)
+            VALUES (%s, %s, %s, %s, %s)
+            """
+            cursor.execute(insert_query, (str(uuid.uuid4()), discord_id, tiers, join_date, expiry_date))
+        
+        connection.commit()
+        print("Tiers and dates stored in DB for discordId:", discord_id)
+
+    except mysql.connector.Error as err:
+        print(f"Database error: {err}")
+        return jsonify({'error': str(err)}), 500
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+
+    try:
+        # Create a Stripe Checkout session
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': item['name'],
+                        },
+                        'unit_amount': int(item['cost'] * 100),  # Stripe expects amounts in cents
                     },
-                    'unit_amount': int(item['cost'] * 100),
-                },
-                'quantity': item['quantity'],
-            } for item in data['cartItems']
-        ],
-        mode='payment',
-        success_url='http://127.0.0.1:4242/success?session_id={CHECKOUT_SESSION_ID}',
-        cancel_url='http://127.0.0.1:4242/cancel',
-        metadata={'discordId': data.get('discordId')}
-    )
+                    'quantity': item['quantity'],
+                }
+                for item in cart_items
+            ],
+            mode='payment',
+            success_url='http://127.0.0.1:4242/success?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url='http://127.0.0.1:4242/cancel',
+        )
 
-    return jsonify({'id': session.id})
+        print("Stripe session created with ID:", session.id)
+
+        return jsonify({'id': session.id})
+    except Exception as e:
+        print(f"Error creating checkout session: {e}")
+        return jsonify({'error': str(e)}), 500
+
 
 
 # CREATE TABLE subscriptions (
@@ -150,56 +218,51 @@ def stripe_webhook():
     except stripe.error.SignatureVerificationError:
         return jsonify({'status': 'error', 'message': 'Invalid signature'}), 400
 
-    # Handle the event
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-        discord_id = session['metadata']['discordId']
-        cart_items = session['display_items']
+        print("Session data:", session)
 
-        # Get the payment status
-        payment_status = session['payment_status']
-        join_date = datetime.now()
-        expiry_date = join_date + timedelta(days=30)
-        status = 1 if payment_status == 'paid' else 0
-        retry_count = 0 if status == 1 else 1
-
-        connection = None
         try:
             connection = mysql.connector.connect(**db_config)
             cursor = connection.cursor()
+            cursor.execute("SELECT discordId FROM subscriber ORDER BY joinDate DESC LIMIT 1")
+            discord_id_row = cursor.fetchone()
+            if not discord_id_row:
+                raise ValueError("No discordId found in the database.")
+            discord_id = discord_id_row[0]
 
-            # Check if user already has a subscription
-            cursor.execute("SELECT * FROM subscriptions WHERE discordId = %s", (discord_id,))
-            existing_record = cursor.fetchone()
+            print("Discord ID:", discord_id)
 
-            # Update or Insert into subscriptions table
-            if existing_record:
-                # Update existing record
-                existing_tiers = existing_record[2]
-                updated_tiers = existing_tiers + ',' + ','.join([item['name'] for item in cart_items])
+            # Retrieve the stored tiers from the subscriptions table
+            cursor.execute("SELECT tier FROM subscriptions WHERE discordId = %s", (discord_id,))
+            tiers_row = cursor.fetchone()
+            if not tiers_row:
+                raise ValueError("No tiers found in the database for this discordId.")
+            tiers = tiers_row[0].split(',')
+
+            payment_status = session['payment_status']
+            join_date = datetime.now()
+            expiry_date = join_date + timedelta(days=30)
+            status = 1 if payment_status == 'paid' else 0
+            retry_count = 0 if status == 1 else 1
+
+            # Process each tier and update the subscription details in the database
+            for tier in tiers:
                 update_query = """
                 UPDATE subscriptions
-                SET tier = %s, serverId = NULL, joinDate = %s, expiryDate = %s, status = %s, retryCount = retryCount + %s
-                WHERE discordId = %s
+                SET joinDate = %s, expiryDate = %s, status = %s, retryCount = %s
+                WHERE discordId = %s AND FIND_IN_SET(%s, tier)
                 """
-                cursor.execute(update_query, (updated_tiers, join_date, expiry_date, status, retry_count, discord_id))
-            else:
-                # Insert new subscription record
-                insert_query = """
-                INSERT INTO subscriptions (uuid, discordId, tier, serverId, joinDate, expiryDate, status, retryCount)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                """
-                for item in cart_items:
-                    cursor.execute(insert_query, (
-                        str(uuid.uuid4()), discord_id, item['name'], None, join_date, expiry_date, status, retry_count
-                    ))
+                cursor.execute(update_query, (join_date, expiry_date, status, retry_count, discord_id, tier))
 
             connection.commit()
 
         except mysql.connector.Error as err:
-            print(f"Error: {err}")
+            print(f"Database error: {err}")
             return jsonify({'error': str(err)}), 500
-
+        except Exception as e:
+            print(f"Error: {e}")
+            return jsonify({'error': str(e)}), 500
         finally:
             if connection and connection.is_connected():
                 cursor.close()

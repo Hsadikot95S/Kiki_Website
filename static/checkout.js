@@ -128,3 +128,52 @@ document.getElementById('submit-button').addEventListener('click', function () {
         console.error('Error:', error);
     });
 });
+document.getElementById('submit-button').addEventListener('click', function () {
+    const cartItems = [];
+    const tableRows = document.querySelectorAll('#checkout-table-body tr');
+
+    tableRows.forEach(row => {
+        const tierName = row.cells[0].innerText.trim();
+        const count = parseInt(row.cells[2].querySelector('span').innerText.trim());
+        const cost = parseFloat(row.cells[1].innerText.replace('$', '').trim());
+
+        if (count > 0) {
+            cartItems.push({
+                name: tierName,
+                cost: cost,
+                quantity: count
+            });
+        }
+    });
+
+    // Send the tier names as a string in metadata
+    const metadata = {
+        tier_names: cartItems.map(item => item.name).join(',')
+    };
+
+    fetch('/create-checkout-session', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            cartItems: cartItems,
+            metadata: metadata  // Ensure metadata is a simple object with string values
+        }),
+    })
+    .then(function (response) {
+        if (!response.ok) {
+            return response.text().then(err => { 
+                console.error('Error response from server:', err);
+                throw new Error('Failed to create checkout session');
+            });
+        }
+        return response.json();
+    })
+    .then(function (sessionData) {
+        return stripe.redirectToCheckout({ sessionId: sessionData.id });
+    })
+    .catch(function (error) {
+        console.error('Error:', error);
+    });
+});
