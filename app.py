@@ -43,11 +43,11 @@ def serve_image(filename):
 
 
 #  CREATE TABLE subscriber (
-#     ->     discordId BIGINT(20), 
-#     ->     discordUsername VARCHAR(255), 
-#     ->     email VARCHAR(255), 
-#     ->     joinDate VARCHAR(255), 
-#     ->     autoRenewal VARCHAR(255)
+#     ->     discordId BIGINT(20),   -- Discord ID of the user
+#     ->     discordUsername VARCHAR(255), -- Discord username of the user
+#     ->     email VARCHAR(255),  -- Email address of the user
+#     ->     joinDate VARCHAR(255), -- Date when the user joined
+#     ->     autoRenewal VARCHAR(255)  -- Auto-renewal status
 #     -> );
 
 @app.route('/store-subscriber', methods=['POST'])
@@ -92,36 +92,121 @@ def store_subscriber():
             connection.close()
 
 
+# Route to create a checkout session
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     data = request.get_json()
 
-    try:
-        # Create a new Stripe Checkout session
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[
-                {
-                    'price_data': {
-                        'currency': 'usd',
-                        'product_data': {
-                            'name': item['name'],
-                        },
-                        'unit_amount': int(item['cost'] * 100),  # Convert to cents
+    # Create the Stripe Checkout session
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=[
+            {
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': item['name'],
                     },
-                    'quantity': item['quantity'],
-                } for item in data['cartItems']
-            ],
-            mode='payment',
-            success_url='http://127.0.0.1:4242/success',
-            cancel_url='http://127.0.0.1:4242/cancel',
+                    'unit_amount': int(item['cost'] * 100),
+                },
+                'quantity': item['quantity'],
+            } for item in data['cartItems']
+        ],
+        mode='payment',
+        success_url='http://127.0.0.1:4242/success?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url='http://127.0.0.1:4242/cancel',
+        metadata={'discordId': data.get('discordId')}
+    )
+
+    return jsonify({'id': session.id})
+
+
+# CREATE TABLE subscriptions (
+#     uuid VARCHAR(36) NOT NULL PRIMARY KEY,  -- UUID to uniquely identify each subscription
+#     discordId BIGINT(20) NOT NULL,          -- Discord ID of the user
+#     tier VARCHAR(255) NOT NULL,             -- Subscription tier, comma-separated if multiple
+#     serverId BIGINT(20),                    -- Server ID (can be NULL initially)
+#     joinDate DATETIME NOT NULL,             -- Date when the subscription was activated
+#     expiryDate DATETIME NOT NULL,           -- Date when the subscription expires
+#     status TINYINT(1) NOT NULL DEFAULT 0,   -- Subscription status (0 for inactive, 1 for active)
+#     retryCount INT DEFAULT 0,               -- Number of retry attempts if payment fails
+#     UNIQUE KEY unique_subscription (discordId)  -- Ensures no duplicate subscriptions for the same user
+# );
+
+    
+# Stripe webhook to handle events like successful payments
+# Stripe webhook to handle events like successful payments
+@app.route('/stripe-webhook', methods=['POST'])
+def stripe_webhook():
+    payload = request.get_data(as_text=True)
+    sig_header = request.headers.get('Stripe-Signature')
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, webhook_secret
         )
+    except ValueError:
+        return jsonify({'status': 'error', 'message': 'Invalid payload'}), 400
+    except stripe.error.SignatureVerificationError:
+        return jsonify({'status': 'error', 'message': 'Invalid signature'}), 400
 
-        # Return the session ID to the frontend
-        return jsonify({'id': session.id})
+    # Handle the event
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        discord_id = session['metadata']['discordId']
+        cart_items = session['display_items']
 
-    except Exception as e:
-        return jsonify(error=str(e)), 400
+        # Get the payment status
+        payment_status = session['payment_status']
+        join_date = datetime.now()
+        expiry_date = join_date + timedelta(days=30)
+        status = 1 if payment_status == 'paid' else 0
+        retry_count = 0 if status == 1 else 1
+
+        connection = None
+        try:
+            connection = mysql.connector.connect(**db_config)
+            cursor = connection.cursor()
+
+            # Check if user already has a subscription
+            cursor.execute("SELECT * FROM subscriptions WHERE discordId = %s", (discord_id,))
+            existing_record = cursor.fetchone()
+
+            # Update or Insert into subscriptions table
+            if existing_record:
+                # Update existing record
+                existing_tiers = existing_record[2]
+                updated_tiers = existing_tiers + ',' + ','.join([item['name'] for item in cart_items])
+                update_query = """
+                UPDATE subscriptions
+                SET tier = %s, serverId = NULL, joinDate = %s, expiryDate = %s, status = %s, retryCount = retryCount + %s
+                WHERE discordId = %s
+                """
+                cursor.execute(update_query, (updated_tiers, join_date, expiry_date, status, retry_count, discord_id))
+            else:
+                # Insert new subscription record
+                insert_query = """
+                INSERT INTO subscriptions (uuid, discordId, tier, serverId, joinDate, expiryDate, status, retryCount)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                for item in cart_items:
+                    cursor.execute(insert_query, (
+                        str(uuid.uuid4()), discord_id, item['name'], None, join_date, expiry_date, status, retry_count
+                    ))
+
+            connection.commit()
+
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
+            return jsonify({'error': str(err)}), 500
+
+        finally:
+            if connection and connection.is_connected():
+                cursor.close()
+                connection.close()
+
+    return jsonify({'status': 'success'}), 200
+
 
 
 @app.route('/')

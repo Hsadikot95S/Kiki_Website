@@ -90,12 +90,16 @@ function saveCart() {
 const stripe = Stripe('pk_test_51PPwVlImrBfC2UDpXOX7ibGF48c2M3hbWUW99IAMEh5zdX5AbvtRGOYloRNJ1eqbZQ2wTURIaMxUCRBdvK5rbchi00dyxlPw6x'); // Replace with your actual Stripe public key
 
 document.getElementById('submit-button').addEventListener('click', function () {
+    // Assuming you fetch the discordId from somewhere like sessionStorage
+    const discordId = sessionStorage.getItem('discordId');
+
     fetch('/create-checkout-session', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+            discordId: discordId,
             cartItems: Object.keys(cartItems).map(key => ({
                 name: key,
                 cost: getCost(key),
