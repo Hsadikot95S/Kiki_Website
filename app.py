@@ -101,7 +101,6 @@ def create_checkout_session():
     cart_items = data.get('cartItems', [])
     metadata = data.get('metadata', {})
 
-    # Store metadata in a variable
     try:
         connection = mysql.connector.connect(**db_config)
         cursor = connection.cursor()
@@ -122,27 +121,30 @@ def create_checkout_session():
         join_date = datetime.now()
         expiry_date = join_date + timedelta(days=30)
 
-        # Check if there's already a subscription for this discordId
-        cursor.execute("SELECT * FROM subscriptions WHERE discordId = %s", (discord_id,))
-        existing_record = cursor.fetchone()
+        # Split tiers and insert each into a new row
+        for item in cart_items:
+            tier_name = item['name']
+            quantity = item['quantity']
 
-        if existing_record:
-            # If a subscription exists, update the tier column
-            existing_tiers = existing_record[2]  # Assuming the third column is 'tier'
-            updated_tiers = existing_tiers + ',' + tiers
-            update_query = """
-            UPDATE subscriptions
-            SET tier = %s, joinDate = %s, expiryDate = %s
-            WHERE discordId = %s
-            """
-            cursor.execute(update_query, (updated_tiers, join_date, expiry_date, discord_id))
-        else:
-            # Insert a new record if no subscription exists
-            insert_query = """
-            INSERT INTO subscriptions (uuid, discordId, tier, joinDate, expiryDate)
-            VALUES (%s, %s, %s, %s, %s)
-            """
-            cursor.execute(insert_query, (str(uuid.uuid4()), discord_id, tiers, join_date, expiry_date))
+            # Check if there's already a subscription for this discordId and tier
+            cursor.execute("SELECT * FROM subscriptions WHERE discordId = %s AND tiers = %s", (discord_id, tier_name))
+            existing_record = cursor.fetchone()
+
+            if existing_record:
+                # If a subscription exists, update the quantity and dates
+                update_query = """
+                UPDATE subscriptions
+                SET quantity = quantity + %s, joinDate = %s, expiryDate = %s
+                WHERE discordId = %s AND tiers = %s
+                """
+                cursor.execute(update_query, (quantity, join_date, expiry_date, discord_id, tier_name))
+            else:
+                # Insert a new record if no subscription exists
+                insert_query = """
+                INSERT INTO subscriptions (uuid, discordId, tiers, quantity, joinDate, expiryDate)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """
+                cursor.execute(insert_query, (str(uuid.uuid4()), discord_id, tier_name, quantity, join_date, expiry_date))
         
         connection.commit()
         print("Tiers and dates stored in DB for discordId:", discord_id)
@@ -192,12 +194,13 @@ def create_checkout_session():
 # CREATE TABLE subscriptions (
 #     uuid VARCHAR(36) NOT NULL PRIMARY KEY,  -- UUID to uniquely identify each subscription
 #     discordId BIGINT(20) NOT NULL,          -- Discord ID of the user
-#     tier VARCHAR(255) NOT NULL,             -- Subscription tier, comma-separated if multiple
+#     tiers VARCHAR(255) NOT NULL,             -- Subscription tier, comma-separated if multiple
 #     serverId BIGINT(20),                    -- Server ID (can be NULL initially)
 #     joinDate DATETIME NOT NULL,             -- Date when the subscription was activated
 #     expiryDate DATETIME NOT NULL,           -- Date when the subscription expires
 #     status TINYINT(1) NOT NULL DEFAULT 0,   -- Subscription status (0 for inactive, 1 for active)
 #     retryCount INT DEFAULT 0,               -- Number of retry attempts if payment fails
+#     Quantity INT DEFAULT 0s,                 -- Quantity of the subscription
 #     UNIQUE KEY unique_subscription (discordId)  -- Ensures no duplicate subscriptions for the same user
 # );
 
@@ -234,7 +237,7 @@ def stripe_webhook():
             print("Discord ID:", discord_id)
 
             # Retrieve the stored tiers from the subscriptions table
-            cursor.execute("SELECT tier FROM subscriptions WHERE discordId = %s", (discord_id,))
+            cursor.execute("SELECT tiers FROM subscriptions WHERE discordId = %s", (discord_id,))
             tiers_row = cursor.fetchone()
             if not tiers_row:
                 raise ValueError("No tiers found in the database for this discordId.")
@@ -251,7 +254,7 @@ def stripe_webhook():
                 update_query = """
                 UPDATE subscriptions
                 SET joinDate = %s, expiryDate = %s, status = %s, retryCount = %s
-                WHERE discordId = %s AND FIND_IN_SET(%s, tier)
+                WHERE discordId = %s AND FIND_IN_SET(%s, tiers)
                 """
                 cursor.execute(update_query, (join_date, expiry_date, status, retry_count, discord_id, tier))
 
@@ -269,6 +272,71 @@ def stripe_webhook():
                 connection.close()
 
     return jsonify({'status': 'success'}), 200
+
+@app.route('/get-subscriptions', methods=['GET'])
+def get_subscriptions():
+    try:
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor(dictionary=True)
+
+        query = """
+            SELECT s.discordUsername, sub.tiers, sub.joinDate, sub.expiryDate
+            FROM subscriber s
+            JOIN subscriptions sub ON s.discordId = sub.discordId
+        """
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/update-subscriptions', methods=['POST'])
+def update_subscriptions():
+    try:
+        data = request.get_json()
+        subscriptions = data.get('subscriptions', [])
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        for subscription in subscriptions:
+            discord_username = subscription.get('discordUsername')
+            tier = subscription.get('tiers')
+            quantity = subscription.get('quantity')
+
+            if discord_username and tier and quantity is not None:
+                print(f"Updating {tier} for {discord_username} to quantity {quantity}")
+
+                # Update the quantity for the corresponding discordUsername and tier
+                update_query = """
+                    UPDATE subscriptions 
+                    SET quantity = quantity + %s
+                    WHERE discordId = (SELECT discordId FROM subscriber WHERE discordUsername = %s)
+                    AND tiers = %s
+                """
+                cursor.execute(update_query, (quantity, discord_username, tier))
+
+        connection.commit()
+        return jsonify({'success': True}), 200
+
+    except mysql.connector.Error as err:
+        print(f"Database error: {err}")
+        return jsonify({'error': str(err)}), 500
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
 
 
 

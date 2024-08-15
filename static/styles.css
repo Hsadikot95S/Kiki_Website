@@ -626,3 +626,24 @@ a:hover {
 .spacer {
     height: 20px;
 }
+
+#subscription-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#subscription-table th, #subscription-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#subscription-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+#subscription-table td {
+    word-wrap: break-word; /* Ensure long text wraps within the cell */
+    white-space: nowrap; /* Prevent the text from overflowing outside the cell */
+}

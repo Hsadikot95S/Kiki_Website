@@ -29,14 +29,30 @@
             <table id="subscription-table">
                 <thead>
                     <tr>
-                        <th>Name Of Subscription</th>
-                        <th>No of Subscriptions</th>
+                        <th>Subscriber Username</th>
+                        <th>Subscription Name</th>
+                        <th>Activation Date</th>
+                        <th>Expiration Date</th>
+                        <th>Modify Subscription</th> <!-- New column for modification -->
                     </tr>
                 </thead>
                 <tbody id="subscription-table-body">
                     <!-- Subscription items will be inserted here by JavaScript -->
                 </tbody>
             </table>
+
+            <!-- Note about subscription changes -->
+            <p class="note">
+                Note: Changes to your subscriptions will be reflected from the next billing cycle.
+            </p>
+
+            <!-- Button to confirm changes -->
+            <div class="center-button">
+                <button id="confirm-changes-btn">Confirm Changes</button>
+            </div>
+
+            <!-- Message placeholder -->
+            <div id="message-placeholder" class="message-placeholder"></div>
         </section>
     </main>
 
