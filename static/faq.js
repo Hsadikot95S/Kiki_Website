@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadFAQ() {
-    fetch('data/FAQ.docx')
+    fetch('static/data/FAQ.docx')
         .then(response => response.arrayBuffer())
         .then(data => mammoth.convertToHtml({arrayBuffer: data}))
         .then(result => {

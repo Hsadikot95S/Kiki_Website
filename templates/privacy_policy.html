@@ -13,10 +13,10 @@
             <div class="logo">Kiki the Translator</div>
             <nav>
                 <ul>
-                    <li><a href="templates/index.html">Home</a></li>
-                    <li><a href="templates/pricing.html">Pricing</a></li>
-                    <li><a href="templates/checkout.html" id="cart-icon">Cart (0)</a></li>
-                    <li><a href="templates/subscription.html">Manage Subscription</a></li>
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('pricing') }}">Pricing</a></li>
+                    <li><a href="#" id="cart-icon">Cart (0)</a></li>
+                    <li><a href="{{ url_for('subscribe') }}">Manage Subscription</a></li>
                 </ul>
             </nav>
         </div>

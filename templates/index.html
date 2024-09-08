@@ -15,13 +15,20 @@
             <nav>
                 <ul>
                     <li><a href="{{ url_for('index') }}">Home</a></li>
-                    <li><a href="{{ url_for('pricing') }}">Pricing</a></li>
+                    <li><a href="{{ url_for('pricing') }}">Pricing</a></li>                    
+                    <li><a href="{{ url_for('checkout') }}" id="cart-icon">Cart (0)</a></li>
+                    <!-- Placeholder for displaying the username -->
+                    <li id="username-display" style="display: none;"></li>
+                    <!-- Login and logout options -->
+                    <li id="login-link"><a href="#" onclick="login()">Login <img src="static/images/discord-icon.png" alt="Discord" class="discord-icon"></a></li>
+                    <li id="logout-link" style="display: none;"><a href="#" onclick="logout()">Logout</a></li>
                 </ul>
             </nav>
         </div>
     </header>
-
+    
     <main>
+        <!-- Hero section -->
         <section class="hero chatbot-theme">
             <h1>Unlock the Power of Translation</h1>
             <p>Seamlessly communicate across languages with Kiki, your personal Discord translation bot.</p>
@@ -30,12 +37,14 @@
             </div>
         </section>
 
+        <!-- About Kiki section -->
         <section class="details">
             <h2>About Kiki</h2>
             <p>Details about Kiki...</p>
             <p>Welcome to our cutting-edge platform where language barriers are a thing of the past. Choose your preferred languages for seamless translations, whether it's one, two, three, or four languages for fluid communication. Enjoy lively banter with Kiki through dad jokes and puns, and elevate your messages using country flag emojis for translations. Let Kiki voice messages in your selected channel through text-to-speech, create engaging auto-translated polls, and pick from different themes for translation preferences. Experience effortless single-language inter-channel translations and set up simple single-language inter-server translations with ease. Stay informed with one-time or recurring translated announcements, engage in private AI chat, and utilize vision capabilities for flawless translations while unlocking exclusive image generation add-ons to enhance your messaging further.</p>
         </section>
 
+        <!-- Commands documentation section -->
         <section class="commands">
             <h2>Commands Documentation</h2>
             <div class="command-list">
@@ -45,6 +54,7 @@
             </div>
         </section>
 
+        <!-- FAQ section -->
         <section class="faq">
             <h2>Frequently Asked Questions</h2>
             <div class="faq-slider" id="faq-slider">
@@ -52,6 +62,7 @@
             </div>
         </section>
 
+        <!-- Customer reviews section -->
         <section class="reviews">
             <h2>Customer Reviews</h2>
             <div class="reviews-container" id="reviews-container">
@@ -70,9 +81,10 @@
         <p class="copyright-text">&copy; 2024 Kiki the Translator. All rights reserved.</p>
     </footer>
 
-    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <!-- Include scripts -->
     <script src="{{ url_for('static', filename='login.js') }}"></script>
     <script src="{{ url_for('static', filename='faq.js') }}"></script>
     <script src="{{ url_for('static', filename='reviews.js') }}"></script>
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
 </body>
 </html>

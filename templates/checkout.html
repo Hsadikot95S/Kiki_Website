@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kiki the Translator - Checkout</title>
+    <!-- Fonts and styles -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/styles.css">
-    <script src="static/checkout.js" defer></script>
-    <script src="static/login.js" defer></script>
+    <!-- JavaScript files -->
     <script src="https://js.stripe.com/v3/"></script>
-
+    <script src="static/login.js" defer></script>
+    <script src="static/checkout.js" defer></script>
 </head>
 <body>
+    <!-- Header with navigation -->
     <header>
         <div class="navbar">
             <div class="logo">Kiki the Translator</div>
@@ -19,15 +21,22 @@
                 <ul>
                     <li><a href="{{ url_for('index') }}">Home</a></li>
                     <li><a href="{{ url_for('pricing') }}">Pricing</a></li>                    
-                    <li><a href="templates/checkout.html" id="cart-icon">Cart (0)</a></li>
+                    <li><a href="{{ url_for('checkout') }}" id="cart-icon">Cart (0)</a></li>
+                    <!-- Placeholder for displaying the username -->
+                    <li id="username-display" style="display: none;"></li>
+                    <!-- Login and logout options -->
+                    <li id="login-link"><a href="#" onclick="login()">Login <img src="static/images/discord-icon.png" alt="Discord" class="discord-icon"></a></li>
+                    <li id="logout-link" style="display: none;"><a href="#" onclick="logout()">Logout</a></li>
                 </ul>
             </nav>
         </div>
     </header>
-
+    
+    <!-- Main content for checkout -->
     <main>
         <section class="checkout">
             <h1>Checkout</h1>
+            <!-- Checkout table to display cart items -->
             <table id="checkout-table">
                 <thead>
                     <tr>
@@ -38,7 +47,7 @@
                     </tr>
                 </thead>
                 <tbody id="checkout-table-body">
-                    <!-- Subscription items will be inserted here by JavaScript -->
+                    <!-- Subscription items will be dynamically inserted here by JavaScript -->
                 </tbody>
                 <tfoot>
                     <tr>
@@ -47,10 +56,12 @@
                     </tr>
                 </tfoot>
             </table>
+            <!-- Button to complete purchase -->
             <button class="checkout-button" id="submit-button" type="button">Complete Purchase</button>
         </section>
     </main>
 
+    <!-- Footer with links -->
     <footer>
         <div class="footer-content">
             <button onclick="window.location.href='mailto:arglobaltranslator@gmail.com'">Contact Us</button>

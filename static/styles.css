@@ -139,6 +139,7 @@ body {
     background-color: #f9f9f9;
 }
 
+
 .pricing {
     text-align: center;
     padding: 20px;
@@ -156,98 +157,48 @@ body {
     gap: 40px; /* Ensure uniform gap between rows */
 }
 
-/* Ensure consistent spacing between all cards in both rows */
-.pricing-cards-row, .pricing-cards-center {
-    display: grid;
-    grid-gap: 20px; /* Consistent gap between cards */
-    justify-items: center;
-    width: 100%; /* Ensure full width for proper alignment */
+ /* CSS for the "Coming Soon" ribbon */
+ .ribbon {
+    position: absolute;
+    top: 15px;
+    right: -10px;
+    z-index: 1;
+    overflow: hidden;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    background-color: gold;
+    color: black;
+    transform: rotate(45deg);
+    font-size: 10px;
+    line-height: 20px;
+    border-radius: 3px;
 }
 
-/* Top row specific settings */
-.pricing-cards-row {
-    grid-template-columns: repeat(4, 1fr); /* 4 cards per row */
+.ribbon span {
+    display: block;
+    position: absolute;
+    width: 100px;
+    text-transform: uppercase;
+    font-weight: bold;
+    top: 19px;
+    left: -22px;
 }
 
-/* Bottom row specific settings */
-.pricing-cards-center {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Ensure the number of columns matches the number above to align them properly */
-    justify-content: center; /* This centers the cards within the container */
-    gap: 20px; /* Consistent spacing between cards */
-    width: 100%; /* Full width to align with the cards above */
-    margin: 0 auto; /* Center the grid container */
-}
-
-/* Ensure consistent margins and width for all cards */
 .card {
-    background-color: #fff;
-    border: 2px solid black; /* Black border */
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: relative;
     padding: 20px;
-    width: 250px;
-    margin: 0; /* Reset margin to ensure grid-gap takes effect */
-    text-align: center; /* Center-align text */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%; /* Ensure all cards have the same height */
-    max-height: 600px; /* Set maximum height for the cards */
-    overflow: hidden; /* Hide overflow content */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin: 10px;
 }
 
-.card-content {
-    flex: 1; /* Allow content to grow and fill available space */
-    overflow-y: auto; /* Enable vertical scrolling for overflow content */
-    margin-bottom: 1em; /* Space between the content and the subscription controls */
-}
-
-/* Ensure consistent spacing between image and title */
-.card img {
-    width: 100%;
-    border: 2px solid black; /* Black border for images */
-    border-radius: 8px 8px 0 0;
-    margin-bottom: 1em; /* Consistent spacing */
-}
-
-/* Ensure consistent spacing between title and pricing */
-.card h2 {
-    margin: 0;
-    font-size: 1.2em;
-    margin-bottom: 1em; /* Consistent spacing */
-}
-
-/* Ensure consistent spacing between pricing and subscription information */
-.card p {
-    font-size: 1em;
-    color: #333;
-    margin: 0 0 1em 0; /* Consistent spacing */
-}
-
-/* Ensure consistent spacing for list items */
-.card ul {
-    padding-left: 20px; /* Add padding for bullet points */
-    list-style-type: disc; /* Add bullet points */
-    text-align: left; /* Align text to the left */
-    margin: 0 0 1em 0; /* Consistent spacing */
-}
-
-.card ul li {
-    text-align: justify;
-    margin-bottom: 10px; /* Consistent spacing between list items */
-}
-
-/* Ensure consistent spacing for subscription control */
-.card .subscription-control-inline, .card .subscription-control {
-    margin-top: 1em; /* Consistent spacing */
-    margin-bottom: 1em; /* Space between the subscription controls and the bottom of the card */
-}
-
+/* Subscription Controls */
 .subscription-control-inline {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 5px;
 }
 
 .subscription-control-inline button {
@@ -255,7 +206,6 @@ body {
     color: white;
     border: none;
     padding: 5px 10px;
-    margin: 0 5px;
     cursor: pointer;
     font-size: 1em;
     border-radius: 5px;
@@ -263,29 +213,15 @@ body {
 
 .subscription-control-inline span {
     font-size: 1.2em;
-    margin: 0 10px;
 }
 
 .subscription-control-inline button:hover {
     background-color: #c9302c;
 }
 
-.card button {
-    background-color: #d9534f;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-}
-
-.card button:hover {
-    background-color: #c9302c;
-}
-
+/* Checkout Button Styles */
 .checkout-container {
-    margin-top: 80px; /* Further increase space above the checkout button */
+    margin-top: 80px;
     text-align: center;
 }
 
@@ -388,14 +324,26 @@ body {
         grid-template-columns: 1fr;
     }
 
+    /* Individual Card Styles */
     .card {
-        width: 90%;
+        background-color: #fff;
+        border: 2px solid black; /* Black border */
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 250px; /* Width for the card */
+        height: 250px; /* Height for the card to maintain square shape */
+        text-align: center; /* Center-align text */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        overflow: hidden; /* Hide overflow content */
+        flex: 1; /* Flex property to grow cards evenly */
     }
-
-    .checkout-button {
+    /* .checkout-button {
         width: 90%;
         margin: 1em auto;
-    }
+    } */
 
     .footer-content {
         flex-direction: column;
@@ -408,6 +356,8 @@ body {
         margin-bottom: 10px;
     }
 }
+
+
 
 /* Medium screens (tablets and iPads) */
 @media (min-width: 601px) and (max-width: 1024px) {
@@ -453,6 +403,69 @@ body {
     }
 }
 
+.card-content {
+    flex: 1; /* Allow content to grow and fill available space */
+    overflow-y: auto; /* Enable vertical scrolling for overflow content */
+    margin-bottom: 1em; /* Space between the content and the subscription controls */
+}
+
+.card-content h2 {
+    margin: 0;
+    font-size: 1.2em;
+    margin-bottom: 10px; /* Consistent spacing */
+}
+
+/* Card Price Styles */
+.card-content p {
+    font-size: 1em;
+    color: #333;
+    margin: 0 0 10px 0; /* Consistent spacing */
+}
+/* Ensure consistent spacing between image and title */
+.card img {
+    width: 100%;
+    border: 2px solid black; /* Black border for images */
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 1em; /* Consistent spacing */
+}
+
+/* Ensure consistent spacing between title and pricing */
+.card h2 {
+    margin: 0;
+    font-size: 1.2em;
+    margin-bottom: 1em; /* Consistent spacing */
+}
+
+/* Ensure consistent spacing between pricing and subscription information */
+.card p {
+    font-size: 1em;
+    color: #333;
+    margin: 0 0 1em 0; /* Consistent spacing */
+}
+
+/* Ensure consistent spacing for list items */
+.card ul {
+    padding-left: 20px; /* Add padding for bullet points */
+    list-style-type: disc; /* Add bullet points */
+    text-align: left; /* Align text to the left */
+    margin: 0 0 1em 0; /* Consistent spacing */
+}
+
+.card ul li {
+    text-align: justify;
+    margin-bottom: 10px; /* Consistent spacing between list items */
+}
+
+.pricing-cards-row {
+    display: flex; /* Use flexbox to align the cards in a row */
+    justify-content: space-between; /* Add space between the cards */
+    gap: 20px; /* Gap between cards */
+    width: 100%;
+    margin: 20px 0; /* Add vertical margin */
+}
+
+
+
 /* Hover effects */
 button:hover, .checkout-button:hover, .footer-content button:hover {
     background-color: #555;
@@ -463,13 +476,28 @@ a:hover {
     color: #4CAF50;
 }
 
+.discord-icon {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+#cart-count {
+    background-color: #ff0000;
+    color: #ffffff;
+    padding: 2px 5px;
+    border-radius: 50%;
+    margin-left: 5px;
+}
+
 //* Tick and green mark for purchase complete */
 .purchased::before {
     content: '✔ ';
     color: green;
 }
 
-/* Table styles */
+/* Table Styles */
 .pricing-table {
     width: 100%;
     border-collapse: collapse;
@@ -477,9 +505,9 @@ a:hover {
 }
 
 .pricing-table th, .pricing-table td {
-    border: 1px solid #ddd; /* Grid lines */
+    border: 1px solid #ddd;
     padding: 8px;
-    text-align: left; /* Default alignment */
+    text-align: left;
 }
 
 .pricing-table th {
@@ -488,7 +516,7 @@ a:hover {
 }
 
 .pricing-table td {
-    text-align: justify; /* Justify text */
+    text-align: justify;
 }
 
 .pricing-table .tick {

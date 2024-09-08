@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadReviews() {
-    fetch('data/Reviews.docx')
+    fetch('static/data/Reviews.docx')
         .then(response => response.arrayBuffer())
         .then(data => mammoth.extractRawText({ arrayBuffer: data })) // Use extractRawText to get raw text content
         .then(result => {

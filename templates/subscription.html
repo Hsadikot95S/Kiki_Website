@@ -14,15 +14,17 @@
             <div class="logo">Kiki the Translator</div>
             <nav>
                 <ul>
-                    <li><a href="templates/index.html">Home</a></li>
-                    <li><a href="templates/pricing.html">Pricing</a></li>
-                    <li><a href="templates/checkout.html" id="cart-icon">Cart (0)</a></li>
-                    <li><a href="templates/subscription.html">Manage Subscription</a></li>
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('pricing') }}">Pricing</a></li>
+                    <li><a href="#" id="cart-icon">Cart (0)</a></li>
+                    <li><a href="{{ url_for('subscribe') }}">Manage Subscription</a></li>
+                    <!-- Placeholder for displaying the username -->
+                    <li id="username-display" style="display: none;"></li>
                 </ul>
             </nav>
         </div>
     </header>
-
+    
     <main>
         <section class="manage-subscription">
             <h1>Manage Your Subscriptions</h1>
@@ -34,6 +36,7 @@
                         <th>Activation Date</th>
                         <th>Expiration Date</th>
                         <th>Modify Subscription</th> <!-- New column for modification -->
+                        <th>Quantity</th> <!-- New column for cancellation -->
                     </tr>
                 </thead>
                 <tbody id="subscription-table-body">

@@ -1,179 +1,190 @@
-document.addEventListener('DOMContentLoaded', () => {
-    loadCart();
-    generateCheckoutTable();
+// Declare cartItems globally so it is accessible in all functions
+let cartItems = {};
+
+// Function to initialize the page
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('Checkout page loaded');
+
+    // Display the username if the user is logged in
+    updateNavbar();
+
+    // Retrieve cart data from localStorage or initialize it as an empty object
+    cartItems = JSON.parse(localStorage.getItem('cartItems')) || {}; 
+    const totalPrice = calculateTotalPrice(cartItems);
+
+    console.log("After page load, cart data:", cartItems);
+    console.log("After page load, total price:", totalPrice);
+
+    if (Object.keys(cartItems).length > 0) {
+        console.log('Cart items loaded:', cartItems);
+        console.log('Total price:', totalPrice);
+        displayCartItems(cartItems);
+        displayTotalPrice(totalPrice);
+    } else {
+        console.log('No cart data found in localStorage');
+    }
+
+    // Add event listener for the complete purchase button
+    document.getElementById('submit-button').addEventListener('click', handleCheckout);
 });
 
-let cartItems = {};
-let totalPrice = 0.0;
-
-function loadCart() {
-    const savedCartItems = sessionStorage.getItem('cartItems');
-    const savedTotalPrice = sessionStorage.getItem('totalPrice');
-    if (savedCartItems && savedTotalPrice) {
-        cartItems = JSON.parse(savedCartItems);
-        totalPrice = parseFloat(savedTotalPrice);
+// Function to handle the complete purchase process
+async function handleCheckout() {
+    const discordUsername = getCookie("username");
+    if (!discordUsername) {
+        alert('You need to log in before completing the purchase.');
+        login(window.location.href); // Redirect to Discord for login
+        return;
     }
-    console.log("Loaded cart items:", cartItems);
-    console.log("Total price:", totalPrice);
+
+    finalizeCheckout(discordUsername);
 }
 
-function generateCheckoutTable() {
-    const checkoutTableBody = document.getElementById('checkout-table-body');
-    checkoutTableBody.innerHTML = '';
+// Function to finalize the checkout
+async function finalizeCheckout(discordUsername) {
+    console.log('Finalizing checkout...');
 
-    for (let tier in cartItems) {
-        const cost = getCost(tier);
-        const count = cartItems[tier];
-        const totalCost = cost * count;
+    const stripe = Stripe('pk_test_51PPwVlImrBfC2UDpXOX7ibGF48c2M3hbWUW99IAMEh5zdX5AbvtRGOYloRNJ1eqbZQ2wTURIaMxUCRBdvK5rbchi00dyxlPw6x'); // Replace with your actual Stripe publishable key
 
-        console.log("Tier:", tier, "Cost:", cost, "Count:", count, "Total Cost:", totalCost);
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${tier}</td>
-            <td>$${cost}</td>
-            <td>
-                <button onclick="decreaseCount('${tier}', ${cost})">-</button>
-                <span id="${tier.toLowerCase().replace(/ /g, '-')}-count">${count}</span>
-                <button onclick="increaseCount('${tier}', ${cost})">+</button>
-            </td>
-            <td id="${tier.toLowerCase().replace(/ /g, '-')}-total-cost">$${totalCost}</td>
-        `;
-        checkoutTableBody.appendChild(row);
-    }
-    updateSubtotal();
-}
-
-function updateSubtotal() {
-    document.getElementById('total-price').innerText = `$${totalPrice.toFixed(2)}`;
-}
-
-function getCost(tier) {
-    switch (tier) {
-        case 'Purrfect Pals': return 0;
-        case 'Whisker Whispers': return 2;
-        case 'Meow Majesty': return 5;
-        case 'Feline Finest': return 10;
-        case 'Add On 1': return 5;
-        case 'Add On 2': return 10;
-        default: return 0;
-    }
-}
-
-function increaseCount(tier, cost) {
-    let countElement = document.getElementById(`${tier.toLowerCase().replace(/ /g, '-')}-count`);
-    let count = parseInt(countElement.innerText) + 1;
-    updateSubscription(tier, count, cost);
-}
-
-function decreaseCount(tier, cost) {
-    let countElement = document.getElementById(`${tier.toLowerCase().replace(/ /g, '-')}-count`);
-    let count = parseInt(countElement.innerText) - 1;
-    if (count >= 0) updateSubscription(tier, count, cost);
-}
-
-function updateSubscription(tier, count, cost) {
-    cartItems[tier] = count;
-    totalPrice = Object.keys(cartItems).reduce((acc, key) => acc + cartItems[key] * getCost(key), 0);
-    document.getElementById(`${tier.toLowerCase().replace(/ /g, '-')}-count`).innerText = count;
-    document.getElementById(`${tier.toLowerCase().replace(/ /g, '-')}-total-cost`).innerText = `$${(count * cost).toFixed(2)}`;
-    updateSubtotal();
-    saveCart();
-}
-
-function saveCart() {
-    sessionStorage.setItem('cartItems', JSON.stringify(cartItems));
-    sessionStorage.setItem('totalPrice', totalPrice.toString());
-}
-
-// Stripe Checkout Integration
-const stripe = Stripe('pk_test_51PPwVlImrBfC2UDpXOX7ibGF48c2M3hbWUW99IAMEh5zdX5AbvtRGOYloRNJ1eqbZQ2wTURIaMxUCRBdvK5rbchi00dyxlPw6x'); // Replace with your actual Stripe public key
-
-document.getElementById('submit-button').addEventListener('click', function () {
-    // Assuming you fetch the discordId from somewhere like sessionStorage
-    const discordId = sessionStorage.getItem('discordId');
-
-    fetch('/create-checkout-session', {
+    // Send cart data to the server for processing
+    const response = await fetch('http://localhost:4242/create-checkout-session', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            discordId: discordId,
-            cartItems: Object.keys(cartItems).map(key => ({
-                name: key,
-                cost: getCost(key),
-                quantity: cartItems[key]
+            discordUsername: discordUsername, // Include discordUsername
+            cartItems: Object.entries(cartItems).map(([name, quantity]) => ({
+                name,
+                quantity,
+                cost: getPriceForTier(name)
             }))
         }),
-    })
-    .then(function (response) {
-        if (!response.ok) {
-            return response.text().then(err => { 
-                console.error('Error response from server:', err);
-                throw new Error('Failed to create checkout session');
-            });
-        }
-        return response.json();
-    })
-    .then(function (sessionId) {
-        return stripe.redirectToCheckout({ sessionId: sessionId.id });
-    })
-    .then(function (result) {
-        if (result.error) {
-            alert(result.error.message);
-        }
-    })
-    .catch(function (error) {
-        console.error('Error:', error);
-    });
-});
-document.getElementById('submit-button').addEventListener('click', function () {
-    const cartItems = [];
-    const tableRows = document.querySelectorAll('#checkout-table-body tr');
-
-    tableRows.forEach(row => {
-        const tierName = row.cells[0].innerText.trim();
-        const count = parseInt(row.cells[2].querySelector('span').innerText.trim());
-        const cost = parseFloat(row.cells[1].innerText.replace('$', '').trim());
-
-        if (count > 0) {
-            cartItems.push({
-                name: tierName,
-                cost: cost,
-                quantity: count
-            });
-        }
     });
 
-    // Send the tier names as a string in metadata
-    const metadata = {
-        tier_names: cartItems.map(item => item.name).join(',')
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response from server:', errorText);
+        alert('Failed to create checkout session. Please try again.');
+        return;
+    }
+
+    const { id } = await response.json();
+    console.log('Stripe session ID:', id);
+
+    // Redirect to Stripe Checkout
+    stripe.redirectToCheckout({ sessionId: id });
+}
+
+// Function to display cart items on the checkout page
+function displayCartItems(cartItems) {
+    const tableBody = document.getElementById('checkout-table-body');
+    if (!tableBody) {
+        console.error('Checkout table body element not found');
+        return;
+    }
+
+    tableBody.innerHTML = ''; // Clear existing content
+
+    // Iterate over each item in the cart and create a table row
+    Object.keys(cartItems).forEach(tier => {
+        const row = document.createElement('tr');
+
+        // Name of the subscription
+        const nameCell = document.createElement('td');
+        nameCell.textContent = tier;
+        row.appendChild(nameCell);
+
+        // Cost for each subscription
+        const costCell = document.createElement('td');
+        const price = getPriceForTier(tier);
+        costCell.textContent = `$${price.toFixed(2)}`;
+        row.appendChild(costCell);
+
+        // Number of subscriptions with increase/decrease buttons
+        const quantityCell = document.createElement('td');
+        const decreaseButton = document.createElement('button');
+        decreaseButton.textContent = '-';
+        decreaseButton.onclick = function () {
+            updateSubscriptionCount(tier, -1); // Decrease count
+        };
+
+        const quantitySpan = document.createElement('span');
+        quantitySpan.textContent = cartItems[tier];
+        quantitySpan.id = `${tier.replace(/ /g, '-').toLowerCase()}-count`;
+
+        const increaseButton = document.createElement('button');
+        increaseButton.textContent = '+';
+        increaseButton.onclick = function () {
+            updateSubscriptionCount(tier, 1); // Increase count
+        };
+
+        quantityCell.appendChild(decreaseButton);
+        quantityCell.appendChild(quantitySpan);
+        quantityCell.appendChild(increaseButton);
+        row.appendChild(quantityCell);
+
+        // Total cost for that subscription
+        const totalCostCell = document.createElement('td');
+        totalCostCell.id = `${tier.replace(/ /g, '-').toLowerCase()}-total-cost`;
+        totalCostCell.textContent = `$${(price * cartItems[tier]).toFixed(2)}`;
+        row.appendChild(totalCostCell);
+
+        tableBody.appendChild(row);
+    });
+}
+
+// Function to display the total price on the checkout page
+function displayTotalPrice(totalPrice) {
+    const totalPriceElement = document.getElementById('total-price');
+    if (!totalPriceElement) {
+        console.error('Total price element not found');
+        return;
+    }
+
+    totalPriceElement.textContent = `$${parseFloat(totalPrice).toFixed(2)}`;
+}
+
+// Function to calculate the total price including all items
+function calculateTotalPrice(cartItems) {
+    let total = 0;
+    Object.keys(cartItems).forEach(tier => {
+        const price = getPriceForTier(tier);
+        total += price * cartItems[tier];
+    });
+    return total;
+}
+
+// Function to update the number of subscriptions
+function updateSubscriptionCount(tier, change) {
+    const countElement = document.getElementById(`${tier.replace(/ /g, '-').toLowerCase()}-count`);
+    let count = parseInt(countElement.textContent, 10) + change;
+    if (count < 0) count = 0; // Prevent negative counts
+
+    const price = getPriceForTier(tier);
+
+    // Update count display
+    countElement.textContent = count;
+
+    // Update cartItems object and total cost display
+    cartItems[tier] = count;
+    document.getElementById(`${tier.replace(/ /g, '-').toLowerCase()}-total-cost`).textContent = `$${(price * count).toFixed(2)}`;
+
+    // Update localStorage and total price display
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    displayTotalPrice(calculateTotalPrice(cartItems));
+}
+
+// Helper function to get the price for each tier or addon
+function getPriceForTier(tier) {
+    const tierPricing = {
+        "Purrfect Pals": 0,
+        "Whisker Whispers": 2,
+        "Meow Majesty": 5,
+        "Feline Finest": 10,
+        "Buy Token": 2, // Price for each token
+        "Add On 1": 5,  // Price for each subscription of Add On 1
+        "Add On 2": 10  // Price for each subscription of Add On 2
     };
-
-    fetch('/create-checkout-session', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            cartItems: cartItems,
-            metadata: metadata  // Ensure metadata is a simple object with string values
-        }),
-    })
-    .then(function (response) {
-        if (!response.ok) {
-            return response.text().then(err => { 
-                console.error('Error response from server:', err);
-                throw new Error('Failed to create checkout session');
-            });
-        }
-        return response.json();
-    })
-    .then(function (sessionData) {
-        return stripe.redirectToCheckout({ sessionId: sessionData.id });
-    })
-    .catch(function (error) {
-        console.error('Error:', error);
-    });
-});
+    return tierPricing[tier] || 0; // Return 0 if tier is not found
+}
